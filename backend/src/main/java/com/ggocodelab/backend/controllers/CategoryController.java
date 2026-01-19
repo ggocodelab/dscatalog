@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ggocodelab.backend.dtos.CategoryDTO;
 import com.ggocodelab.backend.entities.Category;
 import com.ggocodelab.backend.services.CategoryService;
 
@@ -20,8 +21,8 @@ public class CategoryController {
 	public CategoryService service;
 	
 	@GetMapping
-	public ResponseEntity<List<Category>> findAll(){
-		List<Category> list = new ArrayList<>();
+	public ResponseEntity<List<CategoryDTO>> findAll(){
+		List<CategoryDTO> list = new ArrayList<>();
 		return ResponseEntity.ok().body(list);		
 	}
 }
