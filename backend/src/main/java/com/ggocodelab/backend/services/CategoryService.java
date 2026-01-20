@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ggocodelab.backend.dtos.CategoryDTO;
 import com.ggocodelab.backend.entities.Category;
+import com.ggocodelab.backend.exceptions.ResourceNotFoundException;
 import com.ggocodelab.backend.repositories.CategoryRepository;
 
 @Service
@@ -33,7 +34,7 @@ public class CategoryService {
 	@Transactional(readOnly = true)
 	public CategoryDTO findById(Long id) {
 		Optional<Category> obj = repository.findById(id);
-		Category entity = obj.get();
+		Category entity = obj.orElseThrow(() -> new ResourceNotFoundException("Entity not found"));
 		return new CategoryDTO(entity);
 	}
 
