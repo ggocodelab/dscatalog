@@ -41,6 +41,16 @@ public class ProductService {
 		return new ProductDTO(entity);
 	}
 	
+	@Transactional
+	public ProductDTO update(Long id, ProductDTO dto) {
+		Product entity = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
+		//TODO: inserir os campos de product
+		entity.setName(dto.getName());
+		entity = repository.save(entity);
+		return new ProductDTO(entity);
+	}
+	
 	
 
 }
