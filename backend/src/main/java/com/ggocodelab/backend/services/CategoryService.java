@@ -5,15 +5,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ggocodelab.backend.dtos.CategoryDTO;
 import com.ggocodelab.backend.entities.Category;
 import com.ggocodelab.backend.exceptions.ResourceNotFoundException;
 import com.ggocodelab.backend.repositories.CategoryRepository;
-
-import jakarta.persistence.EntityNotFoundException;
+import com.ggocodelab.backend.exceptions.DatabaseException;
 
 @Service
 public class CategoryService {
@@ -57,6 +58,20 @@ public class CategoryService {
 		return new CategoryDTO(entity);
 	}
 	
+	@Transactional(propagation = Propagation.SUPPORTS)
+	public void delete(Long id) {
+		if (!repository.existsById(id)) {
+			throw new ResourceNotFoundException("Resource not found");
+		}
+		
+		try {
+	        	repository.deleteById(id);    		
+		}
+	    	catch (DataIntegrityViolationException e) {
+	    		throw new DatabaseException("Integrity violation.");
+	   	}
+	}
+	
 //  Versão utilizada na aula
 //	@Transactional
 //	public CategoryDTO update(Long id, CategoryDTO dto) {
@@ -71,5 +86,8 @@ public class CategoryService {
 //		}
 //		return null;		
 //	}	
+	
+	
+	
 	
 }
