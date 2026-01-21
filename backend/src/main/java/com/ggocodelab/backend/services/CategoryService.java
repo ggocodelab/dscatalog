@@ -13,6 +13,8 @@ import com.ggocodelab.backend.entities.Category;
 import com.ggocodelab.backend.exceptions.ResourceNotFoundException;
 import com.ggocodelab.backend.repositories.CategoryRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class CategoryService {
 	
@@ -46,5 +48,28 @@ public class CategoryService {
 		return new CategoryDTO(entity);
 	}
 	
+	@Transactional
+	public CategoryDTO update(Long id, CategoryDTO dto) {
+		Category entity = repository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
+		entity.setName(dto.getName());
+		entity = repository.save(entity);
+		return new CategoryDTO(entity);
+	}
+	
+//  Versão utilizada na aula
+//	@Transactional
+//	public CategoryDTO update(Long id, CategoryDTO dto) {
+//		try {
+//			Category entity = repository.getReferenceById(id);
+//			entity.setName(dto.getName());
+//			entity = repository.save(entity);
+//			return new CategoryDTO(entity);
+//			
+//		} catch (EntityNotFoundException e){
+//			throw new ResourceNotFoundException("Id not found" + id);
+//		}
+//		return null;		
+//	}	
 	
 }
