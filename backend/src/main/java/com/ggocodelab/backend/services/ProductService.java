@@ -10,10 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ggocodelab.backend.dtos.CategoryDTO;
 import com.ggocodelab.backend.dtos.ProductDTO;
+import com.ggocodelab.backend.entities.Category;
 import com.ggocodelab.backend.entities.Product;
 import com.ggocodelab.backend.exceptions.DatabaseException;
 import com.ggocodelab.backend.exceptions.ResourceNotFoundException;
+import com.ggocodelab.backend.repositories.CategoryRepository;
 import com.ggocodelab.backend.repositories.ProductRepository;
 
 @Service
@@ -22,10 +25,14 @@ public class ProductService {
 	@Autowired
 	private ProductRepository repository;
 	
+	@Autowired
+	private CategoryRepository categoryRepository;
+	
 	@Transactional(readOnly = true)
 	public Page<ProductDTO> findAllPaged(PageRequest pageRequest){		
 		Page<Product> list = repository.findAll(pageRequest);		
-		return list.map(x -> new ProductDTO(x));		
+		return list.map(x -> new
+				ProductDTO(x));		
 	}
 	
 	@Transactional(readOnly = true)
@@ -38,18 +45,16 @@ public class ProductService {
 	@Transactional
 	public ProductDTO insert(ProductDTO dto) {
 		Product entity = new Product();
-		//TODO: inserir os campos de product
-		entity.setName(dto.getName());
+		copyDtoToEntity(dto, entity);
 		entity = repository.save(entity);
 		return new ProductDTO(entity);
-	}
-	
+	}	
+
 	@Transactional
 	public ProductDTO update(Long id, ProductDTO dto) {
 		Product entity = repository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
-		//TODO: inserir os campos de product
-		entity.setName(dto.getName());
+		copyDtoToEntity(dto, entity);
 		entity = repository.save(entity);
 		return new ProductDTO(entity);
 	}
@@ -66,5 +71,19 @@ public class ProductService {
 	    	catch (DataIntegrityViolationException e) {
 	    		throw new DatabaseException("Integrity violation.");
 	   	}	
+	}
+	
+	private void copyDtoToEntity(ProductDTO dto, Product entity) {
+		entity.setName(dto.getName());
+		entity.setDescription(dto.getDescription());
+		entity.setMoment(dto.getMoment());
+		entity.setImgUrl(dto.getImgUrl());
+		entity.setPrice(dto.getPrice());
+		
+		entity.getCategories().clear();
+		for(CategoryDTO catDTO : dto.getCategories()) {
+			Category category = categoryRepository.getReferenceById(catDTO.getId());
+			entity.getCategories().add(category);
+		}
 	}
 }
